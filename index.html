@@ -7,26 +7,11 @@
 <title>Fretboard Visualizer</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0d0d0f;
-    --panel: #141416;
-    --border: #2a2a2e;
-    --accent: #e8ff47;
-    --accent2: #ff6b35;
-    --accent3: #7b9cff;
-    --text: #e8e8e0;
-    --muted: #555560;
-    --root-color: #e8ff47;
-    --note-color: #7b9cff;
-    --pentatonic-color: #7b9cff;
-    --added-color: #ff6b35;
-  }
-
-- { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-background: var(–bg);
-color: var(–text);
+background: #0d0d0f;
+color: #e8e8e0;
 font-family: ‘Space Mono’, monospace;
 min-height: 100vh;
 padding: 24px 16px;
@@ -36,14 +21,14 @@ h1 {
 font-family: ‘Bebas Neue’, sans-serif;
 font-size: clamp(2rem, 6vw, 3.5rem);
 letter-spacing: 0.08em;
-color: var(–accent);
+color: #e8ff47;
 text-align: center;
 margin-bottom: 4px;
 }
 
 .subtitle {
 text-align: center;
-color: var(–muted);
+color: #555560;
 font-size: 0.7rem;
 letter-spacing: 0.15em;
 text-transform: uppercase;
@@ -68,7 +53,7 @@ gap: 6px;
 font-size: 0.6rem;
 letter-spacing: 0.2em;
 text-transform: uppercase;
-color: var(–muted);
+color: #555560;
 }
 
 .pill-group {
@@ -79,9 +64,9 @@ gap: 4px;
 
 .pill {
 padding: 6px 12px;
-border: 1px solid var(–border);
-background: var(–panel);
-color: var(–muted);
+border: 1px solid #2a2a2e;
+background: #141416;
+color: #555560;
 font-family: ‘Space Mono’, monospace;
 font-size: 0.72rem;
 cursor: pointer;
@@ -90,19 +75,19 @@ transition: all 0.15s;
 letter-spacing: 0.05em;
 }
 
-.pill:hover { border-color: var(–accent); color: var(–text); }
+.pill:hover { border-color: #e8ff47; color: #e8e8e0; }
 
 .pill.active {
-background: var(–accent);
+background: #e8ff47;
 color: #000;
-border-color: var(–accent);
+border-color: #e8ff47;
 font-weight: 700;
 }
 
 .pill.scale-active {
-background: var(–accent3);
+background: #7b9cff;
 color: #000;
-border-color: var(–accent3);
+border-color: #7b9cff;
 font-weight: 700;
 }
 
@@ -129,7 +114,7 @@ margin-bottom: 8px;
 flex: 1;
 text-align: center;
 font-size: 0.6rem;
-color: var(–muted);
+color: #555560;
 letter-spacing: 0.1em;
 }
 
@@ -149,7 +134,7 @@ width: 48px;
 text-align: right;
 padding-right: 10px;
 font-size: 0.65rem;
-color: var(–muted);
+color: #555560;
 letter-spacing: 0.1em;
 flex-shrink: 0;
 }
@@ -209,20 +194,20 @@ letter-spacing: 0;
 }
 
 .note-dot.root {
-background: var(–root-color);
+background: #e8ff47;
 color: #000;
-box-shadow: 0 0 12px var(–root-color), 0 0 4px var(–root-color);
+box-shadow: 0 0 12px #e8ff47, 0 0 4px #e8ff47;
 }
 
 .note-dot.scale-note {
-background: var(–note-color);
+background: #7b9cff;
 color: #000;
 }
 
 .note-dot.added-note {
-background: var(–added-color);
+background: #ff6b35;
 color: #000;
-box-shadow: 0 0 8px var(–added-color);
+box-shadow: 0 0 8px #ff6b35;
 }
 
 /* Fret markers */
@@ -236,7 +221,7 @@ margin-top: 8px;
 flex: 1;
 text-align: center;
 font-size: 1rem;
-color: var(–border);
+color: #2a2a2e;
 }
 
 .fret-marker.has-dot { color: #3a3a40; }
@@ -255,7 +240,7 @@ display: flex;
 align-items: center;
 gap: 8px;
 font-size: 0.65rem;
-color: var(–muted);
+color: #555560;
 letter-spacing: 0.08em;
 }
 
@@ -266,9 +251,9 @@ border-radius: 50%;
 
 /* Scale info panel */
 .info-panel {
-background: var(–panel);
-border: 1px solid var(–border);
-border-left: 3px solid var(–accent);
+background: #141416;
+border: 1px solid #2a2a2e;
+border-left: 3px solid #e8ff47;
 padding: 16px 20px;
 margin-top: 24px;
 max-width: 700px;
@@ -280,7 +265,7 @@ margin-right: auto;
 font-family: ‘Bebas Neue’, sans-serif;
 font-size: 1.2rem;
 letter-spacing: 0.1em;
-color: var(–accent);
+color: #e8ff47;
 margin-bottom: 8px;
 }
 
@@ -298,13 +283,13 @@ font-size: 0.7rem;
 font-weight: 700;
 }
 
-.info-note.root { background: var(–root-color); color: #000; }
-.info-note.scale { background: var(–note-color); color: #000; }
-.info-note.added { background: var(–added-color); color: #000; }
+.info-note.root { background: #e8ff47; color: #000; }
+.info-note.scale { background: #7b9cff; color: #000; }
+.info-note.added { background: #ff6b35; color: #000; }
 
 .info-desc {
 font-size: 0.65rem;
-color: var(–muted);
+color: #555560;
 line-height: 1.6;
 margin-top: 8px;
 }
@@ -341,9 +326,9 @@ margin-top: 8px;
 </div>
 
 <div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:var(--root-color)"></div> Root</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--note-color)"></div> Scale notes</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--added-color)"></div> Added / blue notes</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e8ff47"></div> Root</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#7b9cff"></div> Scale notes</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ff6b35"></div> Added / blue notes</div>
 </div>
 
 <div class="info-panel" id="info-panel">
