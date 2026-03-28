@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fretboard Visualizer</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --panel: #141416;
+    --border: #2a2a2e;
+    --accent: #e8ff47;
+    --accent2: #ff6b35;
+    --accent3: #7b9cff;
+    --text: #e8e8e0;
+    --muted: #555560;
+    --root-color: #e8ff47;
+    --note-color: #7b9cff;
+    --pentatonic-color: #7b9cff;
+    --added-color: #ff6b35;
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘Space Mono’, monospace;
+min-height: 100vh;
+padding: 24px 16px;
+}
+
+h1 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: clamp(2rem, 6vw, 3.5rem);
+letter-spacing: 0.08em;
+color: var(–accent);
+text-align: center;
+margin-bottom: 4px;
+}
+
+.subtitle {
+text-align: center;
+color: var(–muted);
+font-size: 0.7rem;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+margin-bottom: 28px;
+}
+
+.controls {
+display: flex;
+flex-wrap: wrap;
+gap: 12px;
+justify-content: center;
+margin-bottom: 28px;
+}
+
+.control-group {
+display: flex;
+flex-direction: column;
+gap: 6px;
+}
+
+.control-group label {
+font-size: 0.6rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(–muted);
+}
+
+.pill-group {
+display: flex;
+flex-wrap: wrap;
+gap: 4px;
+}
+
+.pill {
+padding: 6px 12px;
+border: 1px solid var(–border);
+background: var(–panel);
+color: var(–muted);
+font-family: ‘Space Mono’, monospace;
+font-size: 0.72rem;
+cursor: pointer;
+border-radius: 2px;
+transition: all 0.15s;
+letter-spacing: 0.05em;
+}
+
+.pill:hover { border-color: var(–accent); color: var(–text); }
+
+.pill.active {
+background: var(–accent);
+color: #000;
+border-color: var(–accent);
+font-weight: 700;
+}
+
+.pill.scale-active {
+background: var(–accent3);
+color: #000;
+border-color: var(–accent3);
+font-weight: 700;
+}
+
+/* Fretboard */
+.fretboard-wrap {
+overflow-x: auto;
+padding: 8px 0 16px;
+-webkit-overflow-scrolling: touch;
+}
+
+.fretboard {
+position: relative;
+min-width: 820px;
+width: 100%;
+}
+
+.fret-numbers {
+display: flex;
+margin-left: 52px;
+margin-bottom: 8px;
+}
+
+.fret-num {
+flex: 1;
+text-align: center;
+font-size: 0.6rem;
+color: var(–muted);
+letter-spacing: 0.1em;
+}
+
+.strings-container {
+position: relative;
+}
+
+.string-row {
+display: flex;
+align-items: center;
+margin-bottom: 2px;
+position: relative;
+}
+
+.string-label {
+width: 48px;
+text-align: right;
+padding-right: 10px;
+font-size: 0.65rem;
+color: var(–muted);
+letter-spacing: 0.1em;
+flex-shrink: 0;
+}
+
+.fret-cell {
+flex: 1;
+height: 42px;
+position: relative;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+/* String line */
+.fret-cell::before {
+content: ‘’;
+position: absolute;
+left: 0; right: 0;
+top: 50%;
+height: 1.5px;
+background: linear-gradient(90deg, #555, #888, #555);
+transform: translateY(-50%);
+z-index: 0;
+}
+
+/* Fret bar */
+.fret-cell::after {
+content: ‘’;
+position: absolute;
+right: 0;
+top: 4px; bottom: 4px;
+width: 2px;
+background: #333;
+z-index: 1;
+}
+
+/* Nut (first fret bar) */
+.fret-cell.nut::after {
+width: 5px;
+background: #aaa;
+}
+
+.note-dot {
+width: 30px;
+height: 30px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 0.6rem;
+font-weight: 700;
+position: relative;
+z-index: 2;
+transition: all 0.2s;
+cursor: default;
+letter-spacing: 0;
+}
+
+.note-dot.root {
+background: var(–root-color);
+color: #000;
+box-shadow: 0 0 12px var(–root-color), 0 0 4px var(–root-color);
+}
+
+.note-dot.scale-note {
+background: var(–note-color);
+color: #000;
+}
+
+.note-dot.added-note {
+background: var(–added-color);
+color: #000;
+box-shadow: 0 0 8px var(–added-color);
+}
+
+/* Fret markers */
+.fret-markers {
+display: flex;
+margin-left: 52px;
+margin-top: 8px;
+}
+
+.fret-marker {
+flex: 1;
+text-align: center;
+font-size: 1rem;
+color: var(–border);
+}
+
+.fret-marker.has-dot { color: #3a3a40; }
+
+/* Legend */
+.legend {
+display: flex;
+gap: 20px;
+justify-content: center;
+margin-top: 20px;
+flex-wrap: wrap;
+}
+
+.legend-item {
+display: flex;
+align-items: center;
+gap: 8px;
+font-size: 0.65rem;
+color: var(–muted);
+letter-spacing: 0.08em;
+}
+
+.legend-dot {
+width: 14px; height: 14px;
+border-radius: 50%;
+}
+
+/* Scale info panel */
+.info-panel {
+background: var(–panel);
+border: 1px solid var(–border);
+border-left: 3px solid var(–accent);
+padding: 16px 20px;
+margin-top: 24px;
+max-width: 700px;
+margin-left: auto;
+margin-right: auto;
+}
+
+.info-panel h3 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 1.2rem;
+letter-spacing: 0.1em;
+color: var(–accent);
+margin-bottom: 8px;
+}
+
+.info-notes {
+display: flex;
+gap: 8px;
+flex-wrap: wrap;
+margin-top: 10px;
+}
+
+.info-note {
+padding: 4px 10px;
+border-radius: 2px;
+font-size: 0.7rem;
+font-weight: 700;
+}
+
+.info-note.root { background: var(–root-color); color: #000; }
+.info-note.scale { background: var(–note-color); color: #000; }
+.info-note.added { background: var(–added-color); color: #000; }
+
+.info-desc {
+font-size: 0.65rem;
+color: var(–muted);
+line-height: 1.6;
+margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+.fret-cell { height: 36px; }
+.note-dot { width: 26px; height: 26px; font-size: 0.52rem; }
+}
+</style>
+
+</head>
+<body>
+
+<h1>FRETBOARD VISUALIZER</h1>
+<p class="subtitle">Choisis ta key et ta scale — tout s'affiche</p>
+
+<div class="controls">
+  <div class="control-group">
+    <label>Key / Root</label>
+    <div class="pill-group" id="key-selector"></div>
+  </div>
+  <div class="control-group">
+    <label>Scale</label>
+    <div class="pill-group" id="scale-selector"></div>
+  </div>
+</div>
+
+<div class="fretboard-wrap">
+  <div class="fretboard">
+    <div class="fret-numbers" id="fret-numbers"></div>
+    <div class="strings-container" id="strings"></div>
+    <div class="fret-markers" id="fret-markers"></div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--root-color)"></div> Root</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--note-color)"></div> Scale notes</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--added-color)"></div> Added / blue notes</div>
+</div>
+
+<div class="info-panel" id="info-panel">
+  <h3 id="info-title">—</h3>
+  <div class="info-desc" id="info-desc"></div>
+  <div class="info-notes" id="info-notes"></div>
+</div>
+
+<script>
+const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const ENHARMONIC = {'C#':'Db','D#':'Eb','F#':'Gb','G#':'Ab','A#':'Bb'};
+
+function noteName(n) {
+  const note = NOTES[((n % 12) + 12) % 12];
+  return note;
+}
+
+// Intervals from root (semitones)
+const SCALES = {
+  'Pentatonique Majeure': {
+    intervals: [0, 2, 4, 7, 9],
+    added: [],
+    desc: "Le squelette. 5 notes, aucune note de tension. Marche partout sur une progression majeure. C'est ton power chord du solo."
+  },
+  'Pentatonique Mineure': {
+    intervals: [0, 3, 5, 7, 10],
+    added: [],
+    desc: "Version sombre. Même concept que la majeure mais couleur mineure/rock. Relative mineure de la pentatonique majeure (3 demi-tons en dessous)."
+  },
+  'Blues Majeure': {
+    intervals: [0, 2, 4, 7, 9],
+    added: [3],
+    desc: "Pentatonique majeure + blue note (b3). Cette tension caractéristique de BB King, SRV, Chuck Berry. La note orange est ta blue note — utilise-la comme note de passage."
+  },
+  'Blues Mineure': {
+    intervals: [0, 3, 5, 7, 10],
+    added: [6],
+    desc: "Pentatonique mineure + tritone (b5). Très agressif, tension maximale. Le son blues/rock classique. La note orange est le tritone."
+  },
+  'Majeure (Ionien)': {
+    intervals: [0, 2, 4, 5, 7, 9, 11],
+    added: [],
+    desc: "La gamme majeure complète — 7 notes. C'est elle qui contient tous les modes. Pentatonique majeure + le 4 et le 7. Plus mélodique, classique, pop."
+  },
+  'Mineure Naturelle': {
+    intervals: [0, 2, 3, 5, 7, 8, 10],
+    added: [],
+    desc: "La gamme mineure naturelle. Son sombre et émotionnel. Rock, metal, ballade. Relative mineure de la gamme majeure."
+  },
+  'Dorien': {
+    intervals: [0, 2, 3, 5, 7, 9, 10],
+    added: [],
+    desc: "Mode mineur avec un 6 majeur relevé. Couleur jazzy/funk. Carlos Santana, John Mayer. Entre le mineur pur et quelque chose de plus ouvert."
+  },
+  'Mixolydien': {
+    intervals: [0, 2, 4, 5, 7, 9, 10],
+    added: [],
+    desc: "Majeure avec un b7. Le son rock/blues par excellence. AC/DC, Rolling Stones, Hendrix. Parfait sur les accords de dominante (V7)."
+  },
+  'Phrygien': {
+    intervals: [0, 1, 3, 5, 7, 8, 10],
+    added: [],
+    desc: "Mineur avec un b2 — très sombre et espagnol/flamenco. Metallica, Carlos Santana. Crée une tension immédiate dès la première note."
+  },
+};
+
+const STRINGS_TUNING = [4, 11, 7, 2, 9, 4]; // e B G D A E (from high to low), as semitones
+const STRING_NAMES = ['e', 'B', 'G', 'D', 'A', 'E'];
+const FRETS = 15;
+const MARKER_FRETS = [3, 5, 7, 9, 12, 15];
+const DOUBLE_MARKER = [12];
+
+let selectedKey = 0; // C
+let selectedScale = 'Pentatonique Majeure';
+
+// Build key selector
+const keySelector = document.getElementById('key-selector');
+NOTES.forEach((note, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'pill' + (i === 0 ? ' active' : '');
+  btn.textContent = note + (ENHARMONIC[note] ? '/' + ENHARMONIC[note] : '');
+  btn.addEventListener('click', () => {
+    selectedKey = i;
+    document.querySelectorAll('#key-selector .pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  });
+  keySelector.appendChild(btn);
+});
+
+// Build scale selector
+const scaleSelector = document.getElementById('scale-selector');
+Object.keys(SCALES).forEach((scale, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'pill' + (i === 0 ? ' scale-active' : '');
+  btn.textContent = scale;
+  btn.addEventListener('click', () => {
+    selectedScale = scale;
+    document.querySelectorAll('#scale-selector .pill').forEach(b => b.classList.remove('scale-active'));
+    btn.classList.add('scale-active');
+    render();
+  });
+  scaleSelector.appendChild(btn);
+});
+
+// Build fret numbers
+const fretNumbers = document.getElementById('fret-numbers');
+for (let f = 0; f <= FRETS; f++) {
+  const el = document.createElement('div');
+  el.className = 'fret-num';
+  el.textContent = f === 0 ? '' : f;
+  fretNumbers.appendChild(el);
+}
+
+// Build fret markers
+const fretMarkersEl = document.getElementById('fret-markers');
+for (let f = 0; f <= FRETS; f++) {
+  const el = document.createElement('div');
+  el.className = 'fret-marker';
+  if (MARKER_FRETS.includes(f)) {
+    el.classList.add('has-dot');
+    el.textContent = DOUBLE_MARKER.includes(f) ? '◆◆' : '◆';
+  }
+  fretMarkersEl.appendChild(el);
+}
+
+function render() {
+  const scale = SCALES[selectedScale];
+  const intervals = scale.intervals;
+  const added = scale.added;
+
+  // All notes in scale (as semitone offsets from root)
+  const scaleSet = new Set(intervals);
+  const addedSet = new Set(added);
+
+  const stringsEl = document.getElementById('strings');
+  stringsEl.innerHTML = '';
+
+  // Render strings (low E first visually = index 0)
+  for (let s = 0; s < 6; s++) {
+    const row = document.createElement('div');
+    row.className = 'string-row';
+
+    const label = document.createElement('div');
+    label.className = 'string-label';
+    label.textContent = STRING_NAMES[s];
+    row.appendChild(label);
+
+    for (let f = 0; f <= FRETS; f++) {
+      const cell = document.createElement('div');
+      cell.className = 'fret-cell' + (f === 0 ? ' nut' : '');
+
+      const noteIndex = (STRINGS_TUNING[s] + f) % 12;
+      const interval = ((noteIndex - selectedKey) + 12) % 12;
+
+      if (scaleSet.has(interval) || addedSet.has(interval)) {
+        const dot = document.createElement('div');
+        dot.className = 'note-dot';
+        const noteLetter = NOTES[noteIndex];
+        dot.textContent = noteLetter + (ENHARMONIC[noteLetter] ? '' : '');
+
+        if (interval === 0) {
+          dot.classList.add('root');
+        } else if (addedSet.has(interval)) {
+          dot.classList.add('added-note');
+        } else {
+          dot.classList.add('scale-note');
+        }
+        cell.appendChild(dot);
+      }
+      row.appendChild(cell);
+    }
+    stringsEl.appendChild(row);
+  }
+
+  // Info panel
+  document.getElementById('info-title').textContent = NOTES[selectedKey] + ' ' + selectedScale;
+  document.getElementById('info-desc').textContent = scale.desc;
+
+  const infoNotes = document.getElementById('info-notes');
+  infoNotes.innerHTML = '';
+
+  intervals.forEach(interval => {
+    const noteIdx = (selectedKey + interval) % 12;
+    const noteLetter = NOTES[noteIdx];
+    const el = document.createElement('span');
+    el.className = 'info-note ' + (interval === 0 ? 'root' : 'scale');
+    el.textContent = noteLetter + (ENHARMONIC[noteLetter] ? '/' + ENHARMONIC[noteLetter] : '');
+    infoNotes.appendChild(el);
+  });
+
+  added.forEach(interval => {
+    const noteIdx = (selectedKey + interval) % 12;
+    const noteLetter = NOTES[noteIdx];
+    const el = document.createElement('span');
+    el.className = 'info-note added';
+    el.textContent = '+ ' + noteLetter + ' (blue note)';
+    infoNotes.appendChild(el);
+  });
+}
+
+render();
+</script>
+
+</body>
+</html>
